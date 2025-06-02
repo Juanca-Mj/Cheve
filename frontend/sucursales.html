@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sucursales - Chevechita 24/7</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-container">
+      <div class="brand">
+        <img src="img/logo-chevechita.jpg" alt="Logo Chevechita" class="logo" />
+        <h1 class="brand-name">Chevechita 24/7</h1>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link">
+          <i class="fas fa-home"></i> Inicio
+        </a>
+        <a href="catalogo.html" class="nav-link">
+          <i class="fas fa-beer"></i> Catálogo
+        </a>
+        <a href="carrito.html" class="nav-link cart-link">
+          <i class="fas fa-shopping-cart"></i> Carrito
+          <span class="cart-count">0</span>
+        </a>
+        <a href="sucursales.html" class="nav-link active">
+          <i class="fas fa-store"></i> Sucursales
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-title">
+      <h2>Nuestras Sucursales</h2>
+      <p>Gestiona y consulta las sucursales de Chevechita 24/7.</p>
+    </section>
+
+    <section class="agregar-producto">
+      <h3>Agregar o editar sucursal</h3>
+      <form id="formSucursal" class="form-producto">
+        <input type="text" name="id" placeholder="ID único" required>
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="direccion" placeholder="Dirección" required>
+        <input type="text" name="telefono" placeholder="Teléfono">
+        <input type="text" name="ciudad" placeholder="Ciudad">
+        <input type="text" name="horario" placeholder="Horario">
+        <button type="submit">Agregar/Actualizar</button>
+      </form>
+      <div id="mensajeSucursal"></div>
+    </section>
+
+    <section class="productos">
+      <h3>Lista de sucursales</h3>
+      <div id="listaSucursales"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <img src="img/isologo-chevechita.jpg" alt="Isologo Chevechita" class="footer-isologo" />
+        <p>Tu chevechita fría 24/7</p>
+      </div>
+      <div class="footer-links">
+        <h3>Enlaces rápidos</h3>
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="carrito.html">Carrito</a></li>
+          <li><a href="sucursales.html">Sucursales</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact">
+        <h3>Contáctanos</h3>
+        <p><i class="fab fa-whatsapp"></i> WhatsApp: +57 304 293 1312</p>
+        <p><i class="fas fa-map-marker-alt"></i> Dirección: Cl. 61 #3-91, Bucaramanga, Santander</p>
+        <div class="social-links">
+          <a href="https://www.facebook.com/profile.php?id=61575256942905&locale=es_LA" class="social-link" target="_blank"><i class="fab fa-facebook"></i></a>
+          <a href="https://www.instagram.com/chevechita24_7?igsh=MW1mb2o2NGE4Njlzaw==" class="social-link" target="_blank"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Chevechita 24/7. Todos los derechos reservados.</p>
+      <p class="footer-disclaimer">El consumo de alcohol está prohibido para menores de edad.</p>
+    </div>
+  </footer>
+
+  <div class="whatsapp-float">
+    <a href="https://wa.me/573042931312" target="_blank">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+  </div>
+
+  <script>
+    async function cargarSucursales() {
+      const res = await fetch('http://localhost:4000/api/sucursales');
+      const sucursales = await res.json();
+      const lista = document.getElementById('listaSucursales');
+      lista.innerHTML = sucursales.map(s => `
+        <div class="sucursal-card">
+          <button class="sucursal-header" type="button">
+            <span class="sucursal-nombre">${s.nombre}</span>
+            <span class="sucursal-toggle"><i class="fas fa-chevron-down"></i></span>
+          </button>
+          <div class="sucursal-body">
+            <p><strong>Dirección:</strong> ${s.direccion}</p>
+            <p><strong>Ciudad:</strong> ${s.ciudad || '-'}</p>
+            <p><strong>Teléfono:</strong> ${s.telefono || '-'}</p>
+            <p><strong>Horario:</strong> ${s.horario || '-'}</p>
+            <div class="sucursal-actions">
+              <button onclick="editarSucursal('${s.id}')" class="editar-btn"><i class="fas fa-edit"></i> Editar</button>
+              <button onclick="eliminarSucursal('${s.id}')" class="eliminar-btn"><i class="fas fa-trash"></i> Eliminar</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Acordeón: abrir/cerrar detalles
+      document.querySelectorAll('.sucursal-header').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const body = btn.nextElementSibling;
+          body.classList.toggle('open');
+          btn.querySelector('.sucursal-toggle i').classList.toggle('fa-chevron-down');
+          btn.querySelector('.sucursal-toggle i').classList.toggle('fa-chevron-up');
+        });
+      });
+    }
+
+    document.getElementById('formSucursal').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        id: form.id.value.trim(),
+        nombre: form.nombre.value.trim(),
+        direccion: form.direccion.value.trim(),
+        telefono: form.telefono.value.trim(),
+        ciudad: form.ciudad.value.trim(),
+        horario: form.horario.value.trim()
+      };
+      const method = form.dataset.editing ? 'PUT' : 'POST';
+      const url = method === 'POST'
+        ? 'http://localhost:4000/api/sucursales'
+        : `http://localhost:4000/api/sucursales/${data.id}`;
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      document.getElementById('mensajeSucursal').textContent = result.mensaje || result.error;
+      form.reset();
+      form.removeAttribute('data-editing');
+      cargarSucursales();
+    });
+
+    window.editarSucursal = async function(id) {
+      const res = await fetch(`http://localhost:4000/api/sucursales/${id}`);
+      const sucursal = await res.json();
+      const form = document.getElementById('formSucursal');
+      form.id.value = sucursal.id;
+      form.nombre.value = sucursal.nombre;
+      form.direccion.value = sucursal.direccion;
+      form.telefono.value = sucursal.telefono || '';
+      form.ciudad.value = sucursal.ciudad || '';
+      form.horario.value = sucursal.horario || '';
+      form.dataset.editing = "true";
+    };
+
+    window.eliminarSucursal = async function(id) {
+      if (!confirm('¿Eliminar sucursal?')) return;
+      await fetch(`http://localhost:4000/api/sucursales/${id}`, { method: 'DELETE' });
+      cargarSucursales();
+    };
+
+    cargarSucursales();
+  </script>
+</body>
+</html>

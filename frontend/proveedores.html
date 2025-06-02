@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Proveedores - Chevechita 24/7</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+</head>
+<body>
+  <header class="header">
+    <!-- Usa el mismo header/nav que en tus otras páginas -->
+  </header>
+  <main>
+    <section class="agregar-producto">
+      <h3>Agregar o editar proveedor</h3>
+      <form id="formProveedor" class="form-horizontal">
+        <input type="text" name="id" placeholder="ID único" required>
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="contacto" placeholder="Contacto">
+        <input type="text" name="telefono" placeholder="Teléfono">
+        <input type="email" name="email" placeholder="Email">
+        <input type="text" name="direccion" placeholder="Dirección">
+        <button type="submit">Agregar/Actualizar</button>
+      </form>
+      <div id="mensajeProveedor"></div>
+    </section>
+    <section class="productos">
+      <h3>Lista de proveedores</h3>
+      <div id="listaProveedores"></div>
+    </section>
+  </main>
+  <script>
+    async function cargarProveedores() {
+      const res = await fetch('http://localhost:4000/api/proveedores');
+      const proveedores = await res.json();
+      const lista = document.getElementById('listaProveedores');
+      lista.innerHTML = proveedores.map(p => `
+        <div class="sucursal-card">
+          <button class="sucursal-header" type="button">
+            <span class="sucursal-nombre">${p.nombre}</span>
+            <span class="sucursal-toggle"><i class="fas fa-chevron-down"></i></span>
+          </button>
+          <div class="sucursal-body">
+            <p><strong>Contacto:</strong> ${p.contacto || '-'}</p>
+            <p><strong>Teléfono:</strong> ${p.telefono || '-'}</p>
+            <p><strong>Email:</strong> ${p.email || '-'}</p>
+            <p><strong>Dirección:</strong> ${p.direccion || '-'}</p>
+            <div class="sucursal-actions">
+              <button onclick="editarProveedor('${p.id}')" class="editar-btn"><i class="fas fa-edit"></i> Editar</button>
+              <button onclick="eliminarProveedor('${p.id}')" class="eliminar-btn"><i class="fas fa-trash"></i> Eliminar</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Acordeón
+      document.querySelectorAll('.sucursal-header').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const body = btn.nextElementSibling;
+          body.classList.toggle('open');
+          btn.querySelector('.sucursal-toggle i').classList.toggle('fa-chevron-down');
+          btn.querySelector('.sucursal-toggle i').classList.toggle('fa-chevron-up');
+        });
+      });
+    }
+
+    document.getElementById('formProveedor').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        id: form.id.value.trim(),
+        nombre: form.nombre.value.trim(),
+        contacto: form.contacto.value.trim(),
+        telefono: form.telefono.value.trim(),
+        email: form.email.value.trim(),
+        direccion: form.direccion.value.trim()
+      };
+      const method = form.dataset.editing ? 'PUT' : 'POST';
+      const url = method === 'POST'
+        ? 'http://localhost:4000/api/proveedores'
+        : `http://localhost:4000/api/proveedores/${data.id}`;
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      document.getElementById('mensajeProveedor').textContent = result.mensaje || result.error;
+      form.reset();
+      form.removeAttribute('data-editing');
+      cargarProveedores();
+    });
+
+    window.editarProveedor = async function(id) {
+      const res = await fetch(`http://localhost:4000/api/proveedores/${id}`);
+      const proveedor = await res.json();
+      const form = document.getElementById('formProveedor');
+      form.id.value = proveedor.id;
+      form.nombre.value = proveedor.nombre;
+      form.contacto.value = proveedor.contacto || '';
+      form.telefono.value = proveedor.telefono || '';
+      form.email.value = proveedor.email || '';
+      form.direccion.value = proveedor.direccion || '';
+      form.dataset.editing = "true";
+    };
+
+    window.eliminarProveedor = async function(id) {
+      if (!confirm('¿Eliminar proveedor?')) return;
+      await fetch(`http://localhost:4000/api/proveedores/${id}`, { method: 'DELETE' });
+      cargarProveedores();
+    };
+
+    cargarProveedores();
+  </script>
+</body>
+</html>

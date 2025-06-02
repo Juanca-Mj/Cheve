@@ -29,6 +29,9 @@
           <i class="fas fa-shopping-cart"></i> Carrito
           <span class="cart-count">0</span>
         </a>
+        <a href="sucursales.html" class="nav-link">
+          <i class="fas fa-store"></i> Sucursales
+        </a>
       </nav>
     </div>
   </header>
@@ -55,7 +58,7 @@
           </div>
           
           <!-- Los productos del carrito se cargarán dinámicamente aquí -->
-          
+          <div id="carritoContenido"></div>
         </div>
         
         <div class="cart-summary-container">
@@ -154,272 +157,28 @@
     </a>
   </div>
   
+  <script src="js/script.js"></script>
   <script>
-    // Obtener elementos del DOM
-    const cartWithItems = document.getElementById('cart-with-items');
-    const cartEmpty = document.getElementById('cart-empty');
-    const cartItemsContainer = document.querySelector('.cart-items-container');
-    const cartCount = document.querySelector('.cart-count');
-    const cartItemsCount = document.querySelector('.cart-items-count');
-    
-    // Cargar productos del localStorage
-    let carritoItems = [
-      {
-        id: 1,
-        nombre: "Cerveza Coronita",
-        imagen: "img/cerveza1.jpg",
-        precio: 5500,
-        cantidad: 1,
-        detalles: "200ml - 4.5% Alc. - Lager Origen: México"
-      },
-      {
-        id: 2,
-        nombre: "Aguardiente Amarillo 750 ML",
-        imagen: "img/aguardiente1.jpg",
-        precio: 52000,
-        cantidad: 1,
-        detalles: "Botella 750ml - Aguardiente tradicional"
-      }
-    ];
-    
-    const descuentoFijo = 0;
-    const costoEnvio = 15000;
-    
-    // Función para dar formato a precios
-    function formatPrice(price) {
-      return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-    
-    // Función para generar un ID único para cada producto en el DOM
-    function generateUniqueId(item, index) {
-      return `item-${item.id || index}-${item.nombre.replace(/\s+/g, '-').toLowerCase()}`;
-    }
-    
-    // Función para renderizar los productos en el carrito
-    function renderizarCarrito() {
-      // Limpiar el contenido manteniendo solo el header
-      cartItemsContainer.innerHTML = `
-        <div class="cart-items-header">
-          <h3 class="cart-items-title">
-            <i class="fas fa-shopping-cart"></i> Productos en tu carrito
-            <span class="cart-items-count">0</span>
-          </h3>
-          <a href="catalogo.html" class="cart-continue">
-            <i class="fas fa-arrow-left"></i> Seguir comprando
-          </a>
-        </div>
-      `;
-      
-      // Si hay productos, mostrarlos
-      if (carritoItems.length > 0) {
-        carritoItems.forEach((item, index) => {
-          const uniqueId = generateUniqueId(item, index);
-          const cartItemElement = document.createElement('div');
-          cartItemElement.className = 'cart-item';
-          cartItemElement.setAttribute('data-unique-id', uniqueId);
-          cartItemElement.innerHTML = `
-            <img src="${item.imagen}" alt="${item.nombre}" class="cart-item-image">
-            <div class="cart-item-details">
-              <h4 class="cart-item-title">${item.nombre}</h4>
-              <div class="cart-item-meta">
-                ${item.detalles ? `<span>${item.detalles}</span>` : ''}
-              </div>
-              <p class="cart-item-price">$${formatPrice(item.precio)}</p>
-            </div>
-            <div class="cart-item-actions">
-              <div class="quantity-control">
-                <button class="quantity-btn decrease-btn" data-unique-id="${uniqueId}">-</button>
-                <input type="number" class="quantity-input" value="${item.cantidad}" min="1" max="20" readonly>
-                <button class="quantity-btn increase-btn" data-unique-id="${uniqueId}">+</button>
-              </div>
-              <button class="cart-item-remove" data-unique-id="${uniqueId}">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          `;
-          cartItemsContainer.appendChild(cartItemElement);
-        });
-        
-        // Añadir event listeners a los nuevos botones
-        agregarEventListeners();
-      }
-      
-      // Verificar si el carrito está vacío
-      verificarCarritoVacio();
-      
-      // Actualizar contadores y totales
-      actualizarContador();
-      actualizarTotales();
-    }
-    
-    // Función para encontrar el índice del producto por su ID único
-    function findItemIndexByUniqueId(uniqueId) {
-      return carritoItems.findIndex((item, index) => 
-        generateUniqueId(item, index) === uniqueId
-      );
-    }
-    
-    // Event listeners para los botones de cantidad y eliminar
-    function agregarEventListeners() {
-      const decreaseBtns = document.querySelectorAll('.decrease-btn');
-      const increaseBtns = document.querySelectorAll('.increase-btn');
-      const removeButtons = document.querySelectorAll('.cart-item-remove');
-      
-      decreaseBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const uniqueId = btn.getAttribute('data-unique-id');
-          const index = findItemIndexByUniqueId(uniqueId);
-          
-          if (index !== -1 && carritoItems[index].cantidad > 1) {
-            carritoItems[index].cantidad -= 1;
-            guardarCarritoYActualizar();
-          }
-        });
-      });
-      
-      increaseBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const uniqueId = btn.getAttribute('data-unique-id');
-          const index = findItemIndexByUniqueId(uniqueId);
-          
-          if (index !== -1 && carritoItems[index].cantidad < 20) {
-            carritoItems[index].cantidad += 1;
-            guardarCarritoYActualizar();
-          }
-        });
-      });
-      
-      removeButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const uniqueId = btn.getAttribute('data-unique-id');
-          const index = findItemIndexByUniqueId(uniqueId);
-          const cartItem = btn.closest('.cart-item');
-          
-          if (index !== -1) {
-            // Animación de salida
-            cartItem.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            cartItem.style.opacity = '0';
-            cartItem.style.transform = 'translateX(-20px)';
-            
-            setTimeout(() => {
-              carritoItems.splice(index, 1);
-              guardarCarritoYActualizar();
-            }, 300);
-          }
-        });
-      });
-    }
-    
-    // Guardar carrito en localStorage y actualizar interfaz
-    function guardarCarritoYActualizar() {
-      // Solo guardamos en localStorage si existe (para compatibilidad)
-      if (typeof Storage !== "undefined") {
-        localStorage.setItem('carritoItems', JSON.stringify(carritoItems));
-      }
-      renderizarCarrito();
-    }
-    
-    // Actualizar contador del carrito
-    function actualizarContador() {
-      let totalItems = 0;
-      carritoItems.forEach(item => {
-        totalItems += item.cantidad;
-      });
-      
-      cartCount.textContent = totalItems;
-      const itemsCountElement = document.querySelector('.cart-items-count');
-      if (itemsCountElement) {
-        itemsCountElement.textContent = totalItems;
-      }
-    }
-    
-    // Verificar si el carrito está vacío
-    function verificarCarritoVacio() {
-      if (carritoItems.length === 0) {
-        cartWithItems.style.display = 'none';
-        cartEmpty.style.display = 'block';
+    document.addEventListener('DOMContentLoaded', function() {
+      const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+      const carritoContainer = document.getElementById('carritoContenido');
+      if (!carritoContainer) return;
+
+      if (carrito.length === 0) {
+        carritoContainer.innerHTML = '<p>El carrito está vacío.</p>';
       } else {
-        cartWithItems.style.display = 'grid';
-        cartEmpty.style.display = 'none';
+        carritoContainer.innerHTML = carrito.map(producto => `
+          <div class="producto-carrito" data-id="${producto.id}">
+            <img src="${producto.imagen}" alt="${producto.nombre}" class="producto-carrito-img">
+            <div class="producto-carrito-info">
+              <h4 class="producto-carrito-nombre">${producto.nombre}</h4>
+              <p class="producto-carrito-precio">$${(producto.precio * producto.cantidad).toLocaleString('es-CO')}</p>
+              <span class="producto-carrito-cantidad">Cantidad: ${producto.cantidad}</span>
+            </div>
+          </div>
+        `).join('');
       }
-    }
-    
-    // Calcular subtotal basado en productos y cantidades
-    function calcularSubtotal() {
-      let subtotal = 0;
-      carritoItems.forEach(item => {
-        subtotal += item.precio * item.cantidad;
-      });
-      return subtotal;
-    }
-    
-    // Función para actualizar totales
-    function actualizarTotales() {
-      const subtotal = calcularSubtotal();
-      const descuento = descuentoFijo;
-      const envio = costoEnvio;
-      const total = subtotal - descuento + envio;
-      
-      const summaryValues = document.querySelectorAll('.cart-summary-value');
-      const totalElement = document.querySelector('.cart-summary-total-value');
-      
-      if (summaryValues[0]) {
-        summaryValues[0].textContent = '$' + formatPrice(subtotal);
-      }
-      
-      if (summaryValues[1]) {
-        summaryValues[1].textContent = '-$' + formatPrice(descuento);
-      }
-      
-      if (summaryValues[2]) {
-        summaryValues[2].textContent = '$' + formatPrice(envio);
-      }
-      
-      if (totalElement) {
-        totalElement.textContent = '$' + formatPrice(total);
-      }
-    }
-    
-    // Aplicar código promocional
-    const codigoInput = document.querySelector('.codigo-input');
-    const codigoBtn = document.querySelector('.codigo-btn');
-    
-    if (codigoBtn) {
-      codigoBtn.addEventListener('click', () => {
-        if (codigoInput.value.trim().toLowerCase() === 'descuento10') {
-          alert('¡Código promocional aplicado! Has recibido 10% de descuento.');
-          codigoInput.disabled = true;
-          codigoBtn.disabled = true;
-          codigoBtn.textContent = 'Aplicado';
-          
-          actualizarTotales();
-        } else {
-          alert('El código promocional no es válido');
-        }
-      });
-    }
-    
-    // Botón de checkout
-    const checkoutBtn = document.querySelector('.checkout-button');
-    
-    if (checkoutBtn) {
-      checkoutBtn.addEventListener('click', () => {
-        alert('¡Procesando tu pedido! Pronto recibirás tus bebidas favoritas.');
-      });
-    }
-    
-    // Inicializar carrito al cargar la página
-    document.addEventListener('DOMContentLoaded', () => {
-      // Cargar desde localStorage si existe
-      if (typeof Storage !== "undefined") {
-        const savedItems = localStorage.getItem('carritoItems');
-        if (savedItems) {
-          carritoItems = JSON.parse(savedItems);
-        }
-      }
-      renderizarCarrito();
     });
   </script>
-  <script src="js/script.js"></script>
 </body>
 </html>

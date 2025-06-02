@@ -1453,7 +1453,7 @@ body {
 .agregar-producto input[type="number"] {
   padding: 10px 12px;
   border: 1px solid var(--gray-dark);
-  border-radius: var(--border-radius);
+  border-radius: 6px;
   font-size: 1rem;
   font-family: 'Poppins', sans-serif;
   background: #fafafa;
@@ -1507,10 +1507,202 @@ body {
   min-height: 22px;
 }
 
-/* Responsive para el formulario */
-@media (max-width: 600px) {
-  .agregar-producto {
-    padding: 18px 8px 14px 8px;
-    max-width: 98vw;
-  }
+/* --- Estilos para el formulario de Editar producto --- */
+#formEditarProducto {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(139,0,0,0.08);
+  max-width: 420px;
+  margin: 30px auto 20px auto;
+  padding: 28px 24px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid #eee;
+  position: relative;
+  z-index: 10;
+}
+
+#formEditarProducto h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--primary, #8B0000);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+#formEditarProducto input[type="text"],
+#formEditarProducto input[type="number"] {
+  padding: 10px 12px;
+  border: 1px solid var(--gray-dark, #ccc);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background: #fafafa;
+  color: var(--dark, #222);
+  transition: border-color 0.2s;
+}
+
+#formEditarProducto input[type="text"]:focus,
+#formEditarProducto input[type="number"]:focus {
+  border-color: var(--primary, #8B0000);
+  outline: none;
+  background: #fff;
+}
+
+#formEditarProducto button[type="submit"] {
+  margin-top: 10px;
+  background-color: var(--primary, #8B0000);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-size: 1.08rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+#formEditarProducto button[type="submit"]:hover {
+  background: var(--primary-dark, #580000);
+  transform: translateY(-2px);
+}
+
+#formEditarProducto button[type="button"] {
+  background: #eee;
+  color: #8B0000;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 0;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 5px;
+  transition: background 0.2s, color 0.2s;
+}
+
+#formEditarProducto button[type="button"]:hover {
+  background: #f8d7da;
+  color: #580000;
+}
+
+/* Estilos para la lista de sucursales */
+#listaSucursales {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.sucursal-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(139,0,0,0.08);
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  transition: box-shadow 0.2s;
+  border: 1px solid #eee;
+}
+
+.sucursal-card:hover {
+  box-shadow: 0 6px 24px rgba(139,0,0,0.13);
+}
+
+.sucursal-info {
+  flex: 1;
+}
+
+.sucursal-nombre {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary, #8B0000);
+  margin-bottom: 6px;
+}
+
+.sucursal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 24px;
+}
+
+.sucursal-actions .editar-btn,
+.sucursal-actions .eliminar-btn {
+  padding: 7px 14px;
+  border-radius: 5px;
+  border: none;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sucursal-actions .editar-btn {
+  background: #2980b9;
+  color: #fff;
+}
+
+.sucursal-actions .editar-btn:hover {
+  background: #145a86;
+}
+
+.sucursal-actions .eliminar-btn {
+  background: #c0392b;
+  color: #fff;
+}
+
+.sucursal-actions .eliminar-btn:hover {
+  background: #922b1b;
+}
+
+/* Acordeón para sucursales */
+.sucursal-header {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary, #8B0000);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0;
+  transition: color 0.2s;
+}
+
+.sucursal-header:hover {
+  color: #580000;
+}
+
+.sucursal-toggle {
+  margin-left: 10px;
+  font-size: 1.1rem;
+}
+
+.sucursal-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s;
+  padding-left: 2px;
+}
+
+.sucursal-body.open {
+  max-height: 500px;
+  opacity: 1;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  transition: max-height 0.4s cubic-bezier(.4,2,.6,1), opacity 0.3s;
 }
