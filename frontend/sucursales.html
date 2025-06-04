@@ -12,7 +12,7 @@
   <header class="header">
     <div class="container header-container">
       <div class="brand">
-        <img src="img/logo-chevechita.jpg" alt="Logo Chevechita" class="logo" />
+        <img src="https://chevechita-imgs.s3.amazonaws.com/logo-chevechita.jpg" alt="Logo Chevechita" class="logo" />
         <h1 class="brand-name">Chevechita 24/7</h1>
       </div>
       <nav class="main-nav">
@@ -44,7 +44,7 @@
 
     <section class="agregar-producto">
       <h3>Agregar o editar sucursal</h3>
-      <form id="formSucursal" class="form-producto">
+      <form id="formSucursal" class="form-horizontal">
         <input type="text" name="id" placeholder="ID único" required>
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="text" name="direccion" placeholder="Dirección" required>
@@ -65,7 +65,7 @@
   <footer class="footer">
     <div class="container footer-container">
       <div class="footer-brand">
-        <img src="img/isologo-chevechita.jpg" alt="Isologo Chevechita" class="footer-isologo" />
+        <img src="https://chevechita-imgs.s3.amazonaws.com/isologo-chevechita.jpg" alt="Isologo Chevechita" class="footer-isologo" />
         <p>Tu chevechita fría 24/7</p>
       </div>
       <div class="footer-links">
@@ -123,7 +123,7 @@
         </div>
       `).join('');
 
-      // Acordeón: abrir/cerrar detalles
+      // Acordeón
       document.querySelectorAll('.sucursal-header').forEach(btn => {
         btn.addEventListener('click', function() {
           const body = btn.nextElementSibling;
@@ -182,5 +182,6 @@
 
     cargarSucursales();
   </script>
+  <script src="js/script.js"></script>
 </body>
 </html>

@@ -44,10 +44,8 @@ const Chevechita = {
   iniciarCatalogo: function() {
     // Seleccionar todos los botones "Añadir" en la página del catálogo o inicio
     const botonesAgregar = document.querySelectorAll('.añadir-btn, .add-to-cart');
-    
     if (botonesAgregar && botonesAgregar.length > 0) {
       botonesAgregar.forEach(boton => {
-        // Remover cualquier listener previo para evitar duplicados
         boton.removeEventListener('click', this.handleAgregarClick);
         boton.addEventListener('click', this.handleAgregarClick.bind(this));
       });
